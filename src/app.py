@@ -3,7 +3,7 @@ import streamlit as st
 
 # Function to load data
 def load_data():
-    path = 'db/games.csv'
+    path = "https://raw.githubusercontent.com/Giovalentini/gsqsa_app_2023/main/src/db/games.csv"
     return pd.read_csv(path, sep=";", low_memory=False)
 
 # Custom function for styling
