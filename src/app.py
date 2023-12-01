@@ -1,10 +1,14 @@
 import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
 
 # Function to load data
 def load_data():
     path = "https://raw.githubusercontent.com/Giovalentini/gsqsa_app_2023/main/src/db/games.csv"
-    return pd.read_csv(path, sep=";", low_memory=False)
+    df = pd.read_csv(path, sep=";", low_memory=False)
+    return df
 
 # Custom function for styling
 def style_games(df):
@@ -17,15 +21,36 @@ def style_games(df):
 
     return df.style.apply(apply_row_styling, axis=1)
 
+# Function for line plot
+def display_lineplot(df):
+    # After calculating the averages, create the line plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Filtered games sorted by game id for plotting
+    sorted_filtered_games = df.sort_values('id')
+
+    # Plotting the points
+    ax.plot(sorted_filtered_games['id'], sorted_filtered_games['points_gsqsa'], label='Points GSQSA', color='blue')
+    ax.plot(sorted_filtered_games['id'], sorted_filtered_games['points_opponent'], label='Points Opponent', color='orange')
+
+    # Adding labels and title
+    ax.set_xlabel('Game ID')
+    ax.set_ylabel('Points')
+    ax.set_title('Points Scored by GSQSA and Opponent')
+    ax.legend()
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
+
 # Load the data
 games = load_data()
-styled_games = style_games(games.drop(columns="id"))
+styled_games = style_games(games.set_index("id"))
 
 # Title of the app
 st.title("GSQSA Basket Team Stats 2023/2024")
 
 # Show the dataframe without the index
-st.markdown(styled_games.to_html(), unsafe_allow_html=True)
+st.markdown(styled_games.to_html(index=True), unsafe_allow_html=True)
 
 # KPI calculation
 st.subheader("Averages")
@@ -84,3 +109,7 @@ kpi2_html = f"<div style='text-align: center; color: red;'><span style='font-siz
 # Display the KPIs in their respective columns
 col1.markdown(kpi1_html, unsafe_allow_html=True)
 col2.markdown(kpi2_html, unsafe_allow_html=True)
+
+# display line plot
+display_lineplot(filtered_games)
+
